@@ -1,5 +1,8 @@
 dictionaries = ["en_gb"]
 words = [
+    "Nishikado's",
+    "Taito",
+    "Tomohiro",
     "cov",
     "docstrings",
     "mkdocstrings",
