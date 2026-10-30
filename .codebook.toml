@@ -1,0 +1,9 @@
+dictionaries = ["en_gb"]
+words = [
+    "cov",
+    "docstrings",
+    "mkdocstrings",
+    "pyright",
+    "pyyaml",
+    "zensical",
+]

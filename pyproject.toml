@@ -1,0 +1,43 @@
+[project]
+name = "space-invaders"
+version = "0.1.0"
+description = "An attempt to use finite state machines to describe a game."
+readme = "README.md"
+authors = [
+    { name = "George Cummings", email = "gmc@cummings-online.ca" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+space-invaders = "space_invaders:main"
+
+[build-system]
+requires = ["uv_build>=0.13.6,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mkdocstrings>=1.0.8",
+    "mkdocstrings-python>=2.0.10",
+    "pyright>=1.1.414",
+    "pytest>=9.2.0",
+    "pytest-cov>=7.1.0",
+    "pytest-mock>=3.17.0",
+    "pyyaml>=6.0.3",
+    "ruff>=0.17.3",
+    "zensical>=0.0.73",
+]
+
+# ── Tools ────────────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length = 79  # Used for docstrings
+
+[tool.ruff.lint]
+extend-select = ["W505"]  # activates max-doc-length
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 72
+max-line-length = 119
+
+
