@@ -1,5 +1,6 @@
 """Testing the functions in space invaders."""
 
+import pygame
 import pytest
 
 from space_invaders import si
@@ -9,25 +10,32 @@ from space_invaders import si
 # place.
 # ──────────────────────────────────────────────────────────────────────
 
+ANIMATIONS = []
+for i in range(5):
+    ANIMATIONS.append([])
+    for j in range(3):
+        ANIMATIONS[i].append([])
+        ANIMATIONS[i][j] = pygame.Surface((0, 0))
+
 
 @pytest.mark.parametrize(
     "index, x, y, points_value",
     [
-        (0, 24, 24, 10),
-        (1, 24, 25, 10),
-        (2, 24, 26, 20),
-        (3, 24, 27, 20),
-        (4, 24, 28, 30),
-        (5, 40, 24, 10),
-        (6, 40, 25, 10),
-        (7, 40, 26, 20),
-        (8, 40, 27, 20),
-        (9, 40, 28, 30),
-        (50, 184, 24, 10),
-        (51, 184, 25, 10),
-        (52, 184, 26, 20),
-        (53, 184, 27, 20),
-        (54, 184, 28, 30),
+        (0, 24, 18, 10),
+        (1, 24, 19, 10),
+        (2, 24, 20, 20),
+        (3, 24, 21, 20),
+        (4, 24, 22, 30),
+        (5, 40, 18, 10),
+        (6, 40, 19, 10),
+        (7, 40, 20, 20),
+        (8, 40, 21, 20),
+        (9, 40, 22, 30),
+        (50, 184, 18, 10),
+        (51, 184, 19, 10),
+        (52, 184, 20, 20),
+        (53, 184, 21, 20),
+        (54, 184, 22, 30),
     ],
 )
 def test_deploy_fleet(index, x, y, points_value):
@@ -36,7 +44,7 @@ def test_deploy_fleet(index, x, y, points_value):
     testing.
     """
 
-    fleet = si.deploy_fleet()
+    fleet = si.deploy_fleet(ANIMATIONS)
 
     assert fleet[index].pos_x == x
     assert fleet[index].pos_y == y
@@ -54,38 +62,38 @@ def test_move_fleet():
 
     # If going right, but the next move > the right edge, change dir
     # left and move down one row.
-    fleet = si.deploy_fleet()
+    fleet = si.deploy_fleet(ANIMATIONS)
     for i in fleet:
         i.pos_x += 24
     direction, fleet = si.move_fleet(si.RIGHT, fleet)
 
     assert direction == si.LEFT
     assert fleet[0].pos_x == 48  # No move on x
-    assert fleet[0].pos_y == 25  # Move y down one level
+    assert fleet[0].pos_y == 17  # Move y down one level
 
     # Otherwise move one pixel right.
-    fleet = si.deploy_fleet()
+    fleet = si.deploy_fleet(ANIMATIONS)
     direction, fleet = si.move_fleet(si.RIGHT, fleet)
 
     assert direction == si.RIGHT
     assert fleet[0].pos_x == 25
-    assert fleet[0].pos_y == 24  # No move on y
+    assert fleet[0].pos_y == 18  # No move on y
 
     # If going left, but the next move < the left edge, change dir
     # right and move down one row.
-    fleet = si.deploy_fleet()
+    fleet = si.deploy_fleet(ANIMATIONS)
     for i in fleet:
         i.pos_x -= 24
     direction, fleet = si.move_fleet(si.LEFT, fleet)
 
     assert direction == si.RIGHT
     assert fleet[-1].pos_x == 160  # No move on x
-    assert fleet[-1].pos_y == 29  # Move y down one level
+    assert fleet[-1].pos_y == 21  # Move y down one level
 
     # Otherwise move one pixel left.
-    fleet = si.deploy_fleet()
+    fleet = si.deploy_fleet(ANIMATIONS)
     direction, fleet = si.move_fleet(si.LEFT, fleet)
 
     assert direction == si.LEFT
     assert fleet[-1].pos_x == 183
-    assert fleet[-1].pos_y == 28  # No move on y
+    assert fleet[-1].pos_y == 22  # No move on y

@@ -16,7 +16,7 @@ from space_invaders import models
 INVADER_START_X = int(models.SCREEN_WIDTH / 2) - (
     int(models.SPRITE_WIDTH / 2) * 11
 )
-INVADER_START_Y = 24  # The bottom row of the invaders. 1 row = 8 pixels.
+INVADER_START_Y = 18  # The bottom row of the invaders. 1 row = 8 pixels.
 
 
 # Constants
@@ -62,7 +62,7 @@ def start():
         # ↑ Coin accepted screen
         # ╰─────────────────────────────────────────────────────────╯
 
-    running = game(screen, animations)
+        running = game(screen, animations)
     pygame.quit()
 
 
@@ -108,24 +108,30 @@ def game(
     clock = pygame.time.Clock()
     fleet = deploy_fleet(animations)
     fleet_direction = RIGHT
-    invader = 54
+    invader_move_index = 55  # Used to simulate 1978
 
     while True:
+        invader_move_index -= 1
         # Check collision ──────────────────────────────────────────────
 
         # Get player input ─────────────────────────────────────────────
+        # Quit the game if the boss shows up.
+        for event in pygame.event.get():
+            if player_quits(event):
+                return False
 
         # Move player ──────────────────────────────────────────────────
 
         # Move enemy ───────────────────────────────────────────────────
-        fleet_direction, fleet = move_fleet(fleet_direction, fleet)
+        if invader_move_index >= 54:
+            fleet_direction, fleet = move_fleet(fleet_direction, fleet)
 
         # Move projectiles ─────────────────────────────────────────────
 
         # Update sprites ───────────────────────────────────────────────
         screen.fill((0, 0, 0))
-        fleet[invader].sprite.update(
-            fleet[invader].pos_x, fleet[invader].pos_y
+        fleet[invader_move_index].sprite.update(
+            fleet[invader_move_index].pos_x, fleet[invader_move_index].pos_y
         )
         for i in fleet:
             screen.blit(i.sprite.image, i.sprite.rect)
@@ -133,15 +139,9 @@ def game(
         # Draw screen ──────────────────────────────────────────────────
         pygame.display.flip()
 
-        # Player interaction, dictated by external controls
-        # Quit the game if the boss shows up.
-        for event in pygame.event.get():
-            if player_quits(event):
-                return False
-
         # Update invader index
-        if invader < 0:
-            invader = 54
+        if invader_move_index < 0:
+            invader_move_index = 55
         # FPS wait
         clock.tick(FPS)
 

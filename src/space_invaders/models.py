@@ -28,7 +28,7 @@ class GameSprite(pygame.sprite.Sprite):
         """Change the rect and image."""
         self.frame_index = not self.frame_index
         self.image = self.frames[self.frame_index]
-        self.rect.topleft = (x, SCREEN_HEIGHT - (y * 8 + 2))
+        self.rect.topleft = (x, SCREEN_HEIGHT - (y * 10))
 
 
 @dataclass
