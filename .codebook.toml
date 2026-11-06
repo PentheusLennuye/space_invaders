@@ -6,7 +6,9 @@ words = [
     "cov",
     "docstrings",
     "mkdocstrings",
+    "pygame",
     "pyright",
     "pyyaml",
+    "venv",
     "zensical",
 ]

@@ -7,7 +7,9 @@ authors = [
     { name = "George Cummings", email = "gmc@cummings-online.ca" }
 ]
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "pygame>=2.6.1",
+]
 
 [project.scripts]
 space-invaders = "space_invaders:main"
@@ -20,6 +22,7 @@ build-backend = "uv_build"
 dev = [
     "mkdocstrings>=1.0.8",
     "mkdocstrings-python>=2.0.10",
+    "pylint-venv>=3.0.4",
     "pyright>=1.1.414",
     "pytest>=9.2.0",
     "pytest-cov>=7.1.0",
@@ -33,6 +36,7 @@ dev = [
 [tool.ruff]
 line-length = 79  # Used for docstrings
 
+
 [tool.ruff.lint]
 extend-select = ["W505"]  # activates max-doc-length
 
@@ -40,4 +44,21 @@ extend-select = ["W505"]  # activates max-doc-length
 max-doc-length = 72
 max-line-length = 119
 
+[tool.pyright]
+extraPaths = ["src"]
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--ignore=environments",
+    "--ignore=.venv",
+    "--import-mode=importlib"
+]
+cache_dir = "/tmp/pytest"
+pythonpath = [ "src" ]
+testpaths = [ "tests" ]
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
