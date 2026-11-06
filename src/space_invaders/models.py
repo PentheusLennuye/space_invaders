@@ -22,7 +22,9 @@ class GameSprite(pygame.sprite.Sprite):
         self.frames: list[pygame.Surface] = frames
         self.frame_index: int = 0
         self.image = self.frames[self.frame_index]
-        self.rect: pygame.Rect = pygame.Rect(x, y, SPRITE_WIDTH, SPRITE_HEIGHT)
+        self.rect: pygame.Rect = pygame.Rect(
+            x, SCREEN_HEIGHT - (y * 10), SPRITE_WIDTH, SPRITE_HEIGHT
+        )
 
     def update(self, x: int, y: int):
         """Change the rect and image."""
@@ -32,8 +34,17 @@ class GameSprite(pygame.sprite.Sprite):
 
 
 @dataclass
-class Piece(Protocol):
+class Piece(Protocol):  # "Protocol" permits the use of interfaces.
     """A piece is a any object on the board."""
+
+    pos_x: int
+    pos_y: int
+    sprite: GameSprite
+
+
+@dataclass
+class Cannon(Piece):
+    """The player's ride."""
 
     pos_x: int
     pos_y: int

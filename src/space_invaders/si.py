@@ -17,6 +17,8 @@ INVADER_START_X = int(models.SCREEN_WIDTH / 2) - (
     int(models.SPRITE_WIDTH / 2) * 11
 )
 INVADER_START_Y = 18  # The bottom row of the invaders. 1 row = 8 pixels.
+CANNON_START_X = int(models.SCREEN_WIDTH / 2) - int(models.SPRITE_WIDTH / 2)
+CANNON_START_Y = 2
 
 
 # Constants
@@ -29,14 +31,16 @@ LEFT = -1
 OCTOPUS = 0
 CRAB = 1
 SQUID = 2
-BULLETS = 3
-CANNON = 4
-LASER = 5
+CANNON = 3
+LASER = 4
+BULLETS = 5
 
 POINTS_VALUE = (10, 20, 30)
 
 # "Macros" used for easy modification
 P_QUIT = pygame.K_q
+P_LEFT = pygame.K_a
+P_RIGHT = pygame.K_s
 
 
 def start():
@@ -84,6 +88,17 @@ def create_sprite_animations(
                 )
             )
 
+    # Now, the cannon
+    animations.append([])
+    for i in models.SpriteCrop.cannon:
+        animations[CANNON].append(
+            sheet.subsurface(
+                pygame.Rect(
+                    i[0], i[1], models.SPRITE_WIDTH, models.SPRITE_HEIGHT
+                )
+            )
+        )
+
     # All done! --------------------------
 
     return animations
@@ -109,6 +124,7 @@ def game(
     fleet = deploy_fleet(animations)
     fleet_direction = RIGHT
     invader_move_index = 55  # Used to simulate 1978
+    cannon = deploy_cannon(animations[CANNON])
 
     while True:
         invader_move_index -= 1
@@ -119,25 +135,24 @@ def game(
         for event in pygame.event.get():
             if player_quits(event):
                 return False
+        keys = pygame.key.get_pressed()
 
         # Move player ──────────────────────────────────────────────────
-
-        # Move enemy ───────────────────────────────────────────────────
-        if invader_move_index >= 54:
-            fleet_direction, fleet = move_fleet(fleet_direction, fleet)
+        cannon.pos_x = move_cannon_on_command(keys, cannon)
 
         # Move projectiles ─────────────────────────────────────────────
 
+        # Move enemy, one invader per frame ────────────────────────────
+        if invader_move_index >= 54:
+            fleet_direction, fleet = move_fleet(fleet_direction, fleet)
+
         # Update sprites ───────────────────────────────────────────────
-        screen.fill((0, 0, 0))
+        cannon.sprite.update(cannon.pos_x, cannon.pos_y)
         fleet[invader_move_index].sprite.update(
             fleet[invader_move_index].pos_x, fleet[invader_move_index].pos_y
         )
-        for i in fleet:
-            screen.blit(i.sprite.image, i.sprite.rect)
 
-        # Draw screen ──────────────────────────────────────────────────
-        pygame.display.flip()
+        procedure_draw_screen(screen, cannon, fleet)
 
         # Update invader index
         if invader_move_index < 0:
@@ -180,6 +195,45 @@ def deploy_fleet(
     return invaders
 
 
+def deploy_cannon(
+    animations: list[pygame.Surface],
+) -> models.Piece:
+    """Set up a single cannon in the right place."""
+
+    return models.Cannon(
+        CANNON_START_X,
+        CANNON_START_Y,
+        models.GameSprite(CANNON_START_X, CANNON_START_Y, animations),
+    )
+
+
+def move_cannon_on_command(
+    keys: pygame.key.ScancodeWrapper, cannon: models.Piece
+):
+    """Interpret the player mashing the keys."""
+    player_move = 0
+    if keys[P_RIGHT]:
+        player_move += RIGHT
+    if keys[P_LEFT]:
+        player_move += LEFT
+    return move_cannon(player_move, cannon)
+
+
+def move_cannon(command: int, cannon: models.Piece) -> int:
+    """Move cannon horizontally but not past the screen edge."""
+
+    if (
+        command == RIGHT
+        and cannon.pos_x >= models.SCREEN_WIDTH - models.SPRITE_WIDTH
+    ):
+        return cannon.pos_x
+
+    if command == LEFT and cannon.pos_x <= 0:
+        return cannon.pos_x
+
+    return cannon.pos_x + command
+
+
 def move_fleet(
     direction: int, fleet: list[models.Invader]
 ) -> tuple[int, list[models.Invader]]:
@@ -207,6 +261,18 @@ def move_fleet(
         i.pos_x += direction
 
     return direction, w_fleet
+
+
+def procedure_draw_screen(
+    screen: pygame.Surface, cannon: models.Piece, fleet: list[models.Invader]
+) -> None:
+    """Procedure to draw the game on screen."""
+    screen.fill((0, 0, 0))
+    screen.blit(cannon.sprite.image, cannon.sprite.rect)
+    for i in fleet:
+        screen.blit(i.sprite.image, i.sprite.rect)
+
+    pygame.display.flip()
 
 
 if __name__ == "__main__":

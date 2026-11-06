@@ -10,12 +10,17 @@ from space_invaders import si
 # place.
 # ──────────────────────────────────────────────────────────────────────
 
-ANIMATIONS = []
-for i in range(5):
-    ANIMATIONS.append([])
+I_ANIMATIONS = []
+for n in range(5):
+    I_ANIMATIONS.append([])
     for j in range(3):
-        ANIMATIONS[i].append([])
-        ANIMATIONS[i][j] = pygame.Surface((0, 0))
+        I_ANIMATIONS[n].append([])
+        I_ANIMATIONS[n][j] = pygame.Surface((0, 0))
+
+C_ANIMATIONS = []
+for n in range(3):
+    C_ANIMATIONS.append([])
+    C_ANIMATIONS[n] = pygame.Surface((0, 0))
 
 
 @pytest.mark.parametrize(
@@ -44,12 +49,38 @@ def test_deploy_fleet(index, x, y, points_value):
     testing.
     """
 
-    fleet = si.deploy_fleet(ANIMATIONS)
+    fleet = si.deploy_fleet(I_ANIMATIONS)
 
     assert fleet[index].pos_x == x
     assert fleet[index].pos_y == y
     assert fleet[index].value == points_value
     assert len(fleet) == 55
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Test the cannon movement
+# ──────────────────────────────────────────────────────────────────────
+
+
+def test_move_cannon():
+    """Ensure the cannon moves according to the player wishes.
+
+    Up to the screen limits.
+    """
+
+    cannon = si.deploy_cannon(C_ANIMATIONS)
+    assert si.move_cannon(si.RIGHT, cannon) == 105
+
+    cannon = si.deploy_cannon(C_ANIMATIONS)
+    cannon.pos_x = 208
+    assert si.move_cannon(si.RIGHT, cannon) == 208
+
+    cannon = si.deploy_cannon(C_ANIMATIONS)
+    assert si.move_cannon(si.LEFT, cannon) == 103
+
+    cannon = si.deploy_cannon(C_ANIMATIONS)
+    cannon.pos_x = 0
+    assert si.move_cannon(si.LEFT, cannon) == 0
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -62,7 +93,7 @@ def test_move_fleet():
 
     # If going right, but the next move > the right edge, change dir
     # left and move down one row.
-    fleet = si.deploy_fleet(ANIMATIONS)
+    fleet = si.deploy_fleet(I_ANIMATIONS)
     for i in fleet:
         i.pos_x += 24
     direction, fleet = si.move_fleet(si.RIGHT, fleet)
@@ -72,7 +103,7 @@ def test_move_fleet():
     assert fleet[0].pos_y == 17  # Move y down one level
 
     # Otherwise move one pixel right.
-    fleet = si.deploy_fleet(ANIMATIONS)
+    fleet = si.deploy_fleet(I_ANIMATIONS)
     direction, fleet = si.move_fleet(si.RIGHT, fleet)
 
     assert direction == si.RIGHT
@@ -81,7 +112,7 @@ def test_move_fleet():
 
     # If going left, but the next move < the left edge, change dir
     # right and move down one row.
-    fleet = si.deploy_fleet(ANIMATIONS)
+    fleet = si.deploy_fleet(I_ANIMATIONS)
     for i in fleet:
         i.pos_x -= 24
     direction, fleet = si.move_fleet(si.LEFT, fleet)
@@ -91,7 +122,7 @@ def test_move_fleet():
     assert fleet[-1].pos_y == 21  # Move y down one level
 
     # Otherwise move one pixel left.
-    fleet = si.deploy_fleet(ANIMATIONS)
+    fleet = si.deploy_fleet(I_ANIMATIONS)
     direction, fleet = si.move_fleet(si.LEFT, fleet)
 
     assert direction == si.LEFT
