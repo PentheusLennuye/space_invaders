@@ -13,11 +13,9 @@ import pygame
 
 from space_invaders import models
 
-SCREEN_X = 224
-SCREEN_Y = 256
-SPRITE_WIDTH = 16
-SPRITE_HEIGHT = 8
-INVADER_START_X = int(SCREEN_X / 2) - (int(SPRITE_WIDTH / 2) * 11)
+INVADER_START_X = int(models.SCREEN_WIDTH / 2) - (
+    int(models.SPRITE_WIDTH / 2) * 11
+)
 INVADER_START_Y = 24  # The bottom row of the invaders. 1 row = 8 pixels.
 
 
@@ -44,7 +42,9 @@ def start():
     'coins'.
     """
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_X, SCREEN_Y))
+    screen = pygame.display.set_mode(
+        (models.SCREEN_WIDTH, models.SCREEN_HEIGHT)
+    )
     sprite_sheet = pygame.image.load(
         "src/extra/sprite_sheet.png"
     ).convert_alpha()
@@ -78,7 +78,7 @@ def game(screen: pygame.Surface, sprite_sheet: pygame.Surface) -> bool:
     """The main game loop. 10 cents a pop in 1978!"""
 
     clock = pygame.time.Clock()
-    fleet = deploy_fleet(sprite_sheet)
+    fleet = deploy_fleet()
     fleet_direction = RIGHT
 
     while True:
@@ -107,7 +107,7 @@ def game(screen: pygame.Surface, sprite_sheet: pygame.Surface) -> bool:
         clock.tick(FPS)
 
 
-def deploy_fleet(sheet: pygame.Surface | None = None) -> list[models.Invader]:
+def deploy_fleet() -> list[models.Invader]:
     """
     Create the 11x5 block of invaders.
 
@@ -127,22 +127,16 @@ def deploy_fleet(sheet: pygame.Surface | None = None) -> list[models.Invader]:
         for invader_type in (OCTOPUS, OCTOPUS, CRAB, CRAB, SQUID):
             invaders.append(
                 models.Invader(
-                    x, y, assign_sprite(sheet), POINTS_VALUE[invader_type]
+                    x,
+                    y,
+                    models.GameSprite(x, y),
+                    POINTS_VALUE[invader_type],
                 )
             )
             y += 1
-        x += SPRITE_WIDTH
+        x += models.SPRITE_WIDTH
 
     return invaders
-
-
-def assign_sprite(
-    sheet: pygame.Surface | None = None,
-) -> pygame.sprite.Sprite | None:
-    """Assign the animations and hit boxes to the invaders."""
-    if sheet is None:
-        return None
-    return None
 
 
 def move_fleet(
@@ -155,7 +149,10 @@ def move_fleet(
     """
     w_fleet: list[models.Invader] = fleet.copy()
 
-    if direction == RIGHT and w_fleet[-1].pos_x >= SCREEN_X - SPRITE_WIDTH:
+    if (
+        direction == RIGHT
+        and w_fleet[-1].pos_x >= models.SCREEN_WIDTH - models.SPRITE_WIDTH
+    ):
         for i in w_fleet:
             i.pos_y += 1
         return LEFT, w_fleet
