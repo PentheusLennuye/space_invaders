@@ -146,12 +146,8 @@ def game(
         if invader_move_index >= 54:
             fleet_direction, fleet = move_fleet(fleet_direction, fleet)
 
-        # Update sprites ───────────────────────────────────────────────
-        cannon.sprite.update(cannon.pos_x, cannon.pos_y)
-        fleet[invader_move_index].sprite.update(
-            fleet[invader_move_index].pos_x, fleet[invader_move_index].pos_y
-        )
-
+        # Pygame screen drawing ────────────────────────────────────────
+        procedure_update_sprites(cannon, fleet, invader_move_index)
         procedure_draw_screen(screen, cannon, fleet)
 
         # Update invader index
@@ -261,6 +257,21 @@ def move_fleet(
         i.pos_x += direction
 
     return direction, w_fleet
+
+
+# ──────────────────────────────────────────────────────────────────────
+# PYGAME procedures outside game logic
+# ──────────────────────────────────────────────────────────────────────
+
+
+def procedure_update_sprites(
+    cannon: models.Piece, fleet: list[models.Invader], invader_move_index: int
+) -> None:
+    """Procedure to make sure the sprint boxes match the positions."""
+    cannon.sprite.update(cannon.pos_x, cannon.pos_y)
+    fleet[invader_move_index].sprite.update(
+        fleet[invader_move_index].pos_x, fleet[invader_move_index].pos_y
+    )
 
 
 def procedure_draw_screen(
