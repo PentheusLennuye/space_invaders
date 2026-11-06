@@ -29,6 +29,9 @@ LEFT = -1
 OCTOPUS = 0
 CRAB = 1
 SQUID = 2
+BULLETS = 3
+CANNON = 4
+LASER = 5
 
 POINTS_VALUE = (10, 20, 30)
 
@@ -45,9 +48,9 @@ def start():
     screen = pygame.display.set_mode(
         (models.SCREEN_WIDTH, models.SCREEN_HEIGHT)
     )
-    sprite_sheet = pygame.image.load(
-        "src/extra/sprite_sheet.png"
-    ).convert_alpha()
+    animations = create_sprite_animations(
+        pygame.image.load("src/extra/sprite_sheet.png").convert_alpha()
+    )
     running = True
     while running is True:
         for event in pygame.event.get():
@@ -59,8 +62,31 @@ def start():
         # ↑ Coin accepted screen
         # ╰─────────────────────────────────────────────────────────╯
 
-    running = game(screen, sprite_sheet)
+    running = game(screen, animations)
     pygame.quit()
+
+
+def create_sprite_animations(
+    sheet: pygame.Surface,
+) -> list[list[pygame.Surface]]:
+    """Place the sprite images into nicely accessible memory"""
+    animations = []
+
+    # First, the aliens ------------------
+    for i in range(3):
+        animations.append([])
+        for j in models.SpriteCrop.invaders[i]:
+            animations[i].append(
+                sheet.subsurface(
+                    pygame.Rect(
+                        j[0], j[1], models.SPRITE_WIDTH, models.SPRITE_HEIGHT
+                    )
+                )
+            )
+
+    # All done! --------------------------
+
+    return animations
 
 
 def player_quits(event: pygame.event.Event) -> bool:
@@ -74,12 +100,15 @@ def player_quits(event: pygame.event.Event) -> bool:
     )
 
 
-def game(screen: pygame.Surface, sprite_sheet: pygame.Surface) -> bool:
+def game(
+    screen: pygame.Surface, animations: list[list[pygame.Surface]]
+) -> bool:
     """The main game loop. 10 cents a pop in 1978!"""
 
     clock = pygame.time.Clock()
-    fleet = deploy_fleet()
+    fleet = deploy_fleet(animations)
     fleet_direction = RIGHT
+    invader = 54
 
     while True:
         # Check collision ──────────────────────────────────────────────
@@ -93,8 +122,15 @@ def game(screen: pygame.Surface, sprite_sheet: pygame.Surface) -> bool:
 
         # Move projectiles ─────────────────────────────────────────────
 
-        # Draw screen ──────────────────────────────────────────────────
+        # Update sprites ───────────────────────────────────────────────
         screen.fill((0, 0, 0))
+        fleet[invader].sprite.update(
+            fleet[invader].pos_x, fleet[invader].pos_y
+        )
+        for i in fleet:
+            screen.blit(i.sprite.image, i.sprite.rect)
+
+        # Draw screen ──────────────────────────────────────────────────
         pygame.display.flip()
 
         # Player interaction, dictated by external controls
@@ -103,11 +139,16 @@ def game(screen: pygame.Surface, sprite_sheet: pygame.Surface) -> bool:
             if player_quits(event):
                 return False
 
+        # Update invader index
+        if invader < 0:
+            invader = 54
         # FPS wait
         clock.tick(FPS)
 
 
-def deploy_fleet() -> list[models.Invader]:
+def deploy_fleet(
+    animations: list[list[pygame.Surface]],
+) -> list[models.Invader]:
     """
     Create the 11x5 block of invaders.
 
@@ -129,7 +170,7 @@ def deploy_fleet() -> list[models.Invader]:
                 models.Invader(
                     x,
                     y,
-                    models.GameSprite(x, y),
+                    models.GameSprite(x, y, animations[invader_type]),
                     POINTS_VALUE[invader_type],
                 )
             )
@@ -154,12 +195,12 @@ def move_fleet(
         and w_fleet[-1].pos_x >= models.SCREEN_WIDTH - models.SPRITE_WIDTH
     ):
         for i in w_fleet:
-            i.pos_y += 1
+            i.pos_y -= 1
         return LEFT, w_fleet
 
     if direction == LEFT and w_fleet[0].pos_x <= 0:
         for i in w_fleet:
-            i.pos_y += 1
+            i.pos_y -= 1
         return RIGHT, w_fleet
 
     for i in w_fleet:

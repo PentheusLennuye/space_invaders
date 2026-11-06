@@ -13,20 +13,41 @@ SCREEN_WIDTH = 224
 SCREEN_HEIGHT = 256
 
 
-@dataclass  # This effectively turns the object into a struct
+class GameSprite(pygame.sprite.Sprite):
+    """A basic sprite, used for all game pieces on the board."""
+
+    def __init__(self, x: int, y: int, frames: list[pygame.Surface]):
+        super().__init__()
+
+        self.frames: list[pygame.Surface] = frames
+        self.frame_index: int = 0
+        self.image = self.frames[self.frame_index]
+        self.rect: pygame.Rect = pygame.Rect(x, y, SPRITE_WIDTH, SPRITE_HEIGHT)
+
+    def update(self, x: int, y: int):
+        """Change the rect and image."""
+        self.frame_index = not self.frame_index
+        self.image = self.frames[self.frame_index]
+        self.rect.topleft = (x, SCREEN_HEIGHT - (y * 8 + 2))
+
+
+@dataclass
 class Piece(Protocol):
     """A piece is a any object on the board."""
 
-    pos_x: int = 0
-    pos_y: int = 0
-    sprite: pygame.sprite.Sprite | None = None
+    pos_x: int
+    pos_y: int
+    sprite: GameSprite
 
 
 @dataclass
 class Invader(Piece):
     """A squid, crab, octopus, or UFO."""
 
-    value: int = 0
+    pos_x: int
+    pos_y: int
+    sprite: GameSprite
+    value: int
 
 
 @dataclass
@@ -40,18 +61,3 @@ class SpriteCrop:
         ((0, 24), (16, 24), (16, 8)),  # CRAB
         ((0, 16), (16, 16), (16, 8)),  # SQUID
     )
-
-
-class GameSprite(pygame.sprite.Sprite):
-    """A basic sprite, used for all game pieces on the board."""
-
-    def __init__(self, x, y):
-        super().__init__()
-
-        self.image = pygame.Surface((SPRITE_WIDTH, SPRITE_HEIGHT))
-        self.rect: pygame.Rect = pygame.Rect(x, y, SPRITE_WIDTH, SPRITE_HEIGHT)
-
-    def update(self, image: pygame.Surface, x: int, y: int):
-        """Change the rect and image."""
-        self.image = image
-        self.rect.topleft = (x, SCREEN_HEIGHT - (y * 8 + 2))
