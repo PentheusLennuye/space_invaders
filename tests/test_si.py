@@ -22,6 +22,11 @@ for n in range(3):
     C_ANIMATIONS.append([])
     C_ANIMATIONS[n] = pygame.Surface((0, 0))
 
+L_ANIMATIONS = []
+for n in range(1):
+    L_ANIMATIONS.append([])
+    L_ANIMATIONS[n] = pygame.Surface((0, 0))
+
 
 @pytest.mark.parametrize(
     "index, x, y, points_value",
@@ -128,3 +133,31 @@ def test_move_fleet():
     assert direction == si.LEFT
     assert fleet[-1].pos_x == 183
     assert fleet[-1].pos_y == 22  # No move on y
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Test laser behaviour
+# ──────────────────────────────────────────────────────────────────────
+
+
+def test_move_laser():
+    """The laser moves with the cannon unless fired."""
+
+    cannon = si.deploy_cannon(C_ANIMATIONS)
+    laser = si.deploy_laser(cannon, L_ANIMATIONS)
+    cannon.pos_x = 106
+    assert si.move_laser(False, cannon, laser) == (113, 20)
+
+    cannon = si.deploy_cannon(C_ANIMATIONS)
+    laser = si.deploy_laser(cannon, L_ANIMATIONS)
+    cannon.pos_x = 106
+    assert si.move_laser(True, cannon, laser) == (112, 24)
+
+    # The laser cannot move past screen height
+    cannon = si.deploy_cannon(C_ANIMATIONS)
+    laser = si.deploy_laser(cannon, L_ANIMATIONS)
+    laser.pos_y = si.models.SCREEN_HEIGHT - 20
+    assert si.move_laser(True, cannon, laser) == (
+        112,
+        si.models.SCREEN_HEIGHT - 20,
+    )

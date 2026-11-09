@@ -20,17 +20,38 @@ class GameSprite(pygame.sprite.Sprite):
         super().__init__()
 
         self.frames: list[pygame.Surface] = frames
-        self.frame_index: int = 0
+        self.frame_index: int = 0  # Which frame from the animation sprites
         self.image = self.frames[self.frame_index]
         self.rect: pygame.Rect = pygame.Rect(
             x, SCREEN_HEIGHT - (y * 10), SPRITE_WIDTH, SPRITE_HEIGHT
         )
 
-    def update(self, x: int, y: int):
+    def update(self, x: int, y: int, frame_index: int = 0):
         """Change the rect and image."""
-        self.frame_index = not self.frame_index
+        self.frame_index = frame_index
         self.image = self.frames[self.frame_index]
         self.rect.topleft = (x, SCREEN_HEIGHT - (y * 10))
+
+
+class GameProjectileSprite(GameSprite):
+    """
+    A 3x7 sprite, used for all things that go boom.
+
+    Unlike the game pieces, y is in pixels.
+    """
+
+    def __init__(self, x: int, y: int, frames: list[pygame.Surface]):
+        super().__init__(x, y, frames)
+
+        self.frames: list[pygame.Surface] = frames
+        self.frame_index: int = 0
+        self.image = self.frames[self.frame_index]
+        self.rect: pygame.Rect = pygame.Rect(x - 1, SCREEN_HEIGHT - y, 3, 7)
+
+    def update(self, x: int, y: int):
+        """Change the rect and image."""
+        self.image = self.frames[self.frame_index]
+        self.rect.topleft = (x - 1, SCREEN_HEIGHT - y)
 
 
 @dataclass
@@ -62,11 +83,29 @@ class Invader(Piece):
 
 
 @dataclass
+class Projectile(Protocol):
+    """A thing that makes other things bo boom."""
+
+    pos_x: int
+    pos_y: int
+    sprite: GameProjectileSprite
+
+
+@dataclass
+class Laser(Projectile):
+    """The player's ride."""
+
+    pos_x: int
+    pos_y: int
+    sprite: GameProjectileSprite
+
+
+@dataclass
 class SpriteCrop:
     """Where to find the sprint images in the sprite sheet."""
 
     cannon = ((0, 0), (16, 0), (32, 0))
-    laser = ((0, 8), (16, 8), (32, 8))
+    laser = ((6, 8),)
     invaders = (
         ((0, 32), (16, 32), (16, 8)),  # OCTOPUS
         ((0, 24), (16, 24), (16, 8)),  # CRAB
